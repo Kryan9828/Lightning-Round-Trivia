@@ -1,23 +1,12 @@
 const clues = []
-let category
+const answered = []
 let cluesCount 
 let everything = []
 let categoryTitle = []
 let points = 0
+let control = 0
 
-let title = document.createElement("h1")
-title.innerText = "Lightning Round Trivia"
-document.body.append(title)
-
-let text = document.createElement("h3")
-text.innerText ="This is a lightning round trivia game. You will\n"+
-"be asked questions from a specific category. Every \n"+
-"correct answer will give you 1 point. An incorrect \n"+
-"answer will result in a loss of all points and a reset \n"+
-"of the game."
-document.body.append(text)
-
-
+let submit = document.getElementById("submitButton")
 
 function randomQuestion(max){
     return Math.floor(Math.random()*max)
@@ -32,11 +21,10 @@ function storeClues(data){
         let testCheck = everything.includes(testRun)
         if (testCheck === false){
         everything.push(testRun)
-        console.log(everything)
+        // console.log(everything)
         i++}
     }
     while(clues.length < everything.length){
-        let control = 0
         for(let index = 0;index <everything.length;index++){
             let dataI = everything[index]
             clues.push(data[dataI])    
@@ -47,7 +35,7 @@ function storeClues(data){
          
         
     console.log(clues)
-    spawnQuestion(clues)
+    spawnQuestion()
 }
     
 
@@ -97,37 +85,52 @@ function getCategory(){
 }
 
 getCategory()
+let questionLabel = "Question:"
 
-function spawnQuestion(data) {
-    let control = 0
-    let questionLabel = "Question:"
-    let questions = document.createElement("h4")
-    questions.innerHTML = `<br>${questionLabel}</br>` + data[control].question
-    console.log(clues)
-    document.body.append(questions)
-    let answerLabel = document.createElement("label")
-    answerLabel.innerText = "Answer:"
-    document.body.append(answerLabel)
-    var answerInput = document.createElement("input")
-    answerInput.setAttribute("type","text")
-    answerInput.setAttribute("placeholder","Answer here")
-    answerInput.id = "answerValue"
-    let answerValue = answerInput.value
-    document.body.append(answerInput)
-    var submitButton = document.createElement("button")
-    submitButton.id = "submitButton"
-    submitButton.innerText = "Submit Answer"
-    document.body.append(submitButton)
-    function checkAnswer(){
-        if(answerValue === clues.answer){
-            var correctResponse = document.createElement("h4")
-            correctResponse.innerText()
-            document.append(correctResponse)
-            control++
-        }
-    }
-    submitButton.addEventListener("click", checkAnswer())
+function spawnQuestion() {
+    const questions = document.getElementById("questions")
+    questions.innerText = `${questionLabel}\n` + clues[control].question
+    
+
 }
 
+function correctResponse(){
+    const responseCorrect = document.createElement("h4")
+        responseCorrect.innerHTML = "Congratulations, you are Correct."
+        document.append(correctResponse)
+}
 
+function reset(){
+    point.innerText = "0 Pts."
+    getCategory()
+}
+function checkAnswer(answerValue){
+    
+    
+    const point = document.getElementById("points")
+    answerValue = document.getElementById("answer").value
+    answered.push(answerValue)
+    if(answerValue === clues[control].answer){
+        control++
+        points++
+        let pointsText = `${points} Pts.`
+        point.innerText = pointsText
+        console.log(answerValue)
+        console.log(points)
+        console.log(control)
+        questions.innerText = `${questionLabel}\n ${clues[control].question}`
+        document.getElementById("answer").value = ""
+    } else if (answerValue !== clues[control].answer) {
+        points--
+        control--
+        console.log(points)
+        console.log(control)
 
+    }
+    // console.log(answered)
+}
+console.log(answered)
+submit.addEventListener("click",function(){
+    checkAnswer()
+})
+console.log(clues)
