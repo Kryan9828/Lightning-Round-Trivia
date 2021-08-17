@@ -5,6 +5,9 @@ let everything = []
 let categoryTitle = []
 let points = 0
 let control = 0
+const questions = document.getElementById("questions")
+const responseCorrect = document.createElement("h2")    
+    
 
 let submit = document.getElementById("submitButton")
 
@@ -33,9 +36,8 @@ function storeClues(data){
         } 
     }
          
-        
+    questions.innerText = `${questionLabel}\n` + clues[control].question    
     console.log(clues)
-    spawnQuestion()
 }
     
 
@@ -87,23 +89,12 @@ function getCategory(){
 getCategory()
 let questionLabel = "Question:"
 
-function spawnQuestion() {
-    const questions = document.getElementById("questions")
-    questions.innerText = `${questionLabel}\n` + clues[control].question
-    
-
-}
-
 function correctResponse(){
-    const responseCorrect = document.createElement("h4")
-        responseCorrect.innerHTML = "Congratulations, you are Correct."
-        document.append(correctResponse)
+        responseCorrect.innerText = "Congratulations, you are Correct."
+        document.body.append(responseCorrect)
 }
 
-function reset(){
-    point.innerText = "0 Pts."
-    getCategory()
-}
+
 function checkAnswer(answerValue){
     
     
@@ -120,12 +111,12 @@ function checkAnswer(answerValue){
         console.log(control)
         questions.innerText = `${questionLabel}\n ${clues[control].question}`
         document.getElementById("answer").value = ""
+        correctResponse()
     } else if (answerValue !== clues[control].answer) {
-        points--
-        control--
+        points= 0
+        control = 0
         console.log(points)
         console.log(control)
-
     }
     // console.log(answered)
 }
