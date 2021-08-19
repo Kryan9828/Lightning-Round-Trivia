@@ -1,127 +1,167 @@
+// variables and arrays
 const clues = []
 const answered = []
 let cluesCount 
-let everything = []
-let categoryTitle = []
+let randomNumberArray = [] 
 let points = 0
 let control = 0
-const questions = document.getElementById("questions")
-const responseCorrect = document.createElement("h2")    
-    
+let questionLabel = "Question:"
+let questionsText = `${questionLabel}\n` 
 
-let submit = document.getElementById("submitButton")
+// Dom Created Elements
+const categoryTitle =document.createElement("h2")
+const questions = document.getElementById("questions")
+const responseToAnswer = document.createElement("h2") 
+let start = document.getElementById("startButton")
+const point = document.createElement("h2")
+point.innerText = `${points} Pts.`
+let submit = document.createElement("button")
+submit.innerText = "Submit Answer"
+let reset = document.createElement("button")
+reset.innerText = "Reset Game"
+let next = document.createElement("button")
+next.innerText = "Next Question"
+const answerLabel = document.createElement("label")
+answerLabel.setAttribute("for","answer")
+answerLabel.innerHTML = "Answer:"
+let answerInput = document.createElement("input")
+answerInput.setAttribute("type","text")
+answerInput.id = "answer"
+answerInput.placeholder = "Type Your Answer Here"
+let blankSpace1 = document.createElement("h6")
+let blankSpace2 = document.createElement("h6")
+let rules = document.getElementById("rules")
 
 function randomQuestion(max){
     return Math.floor(Math.random()*max)
 }
-
 function storeClues(data){
-    console.log(data)
     let i = 0
     while(i !== data.length){
         let testRun = randomQuestion(data.length)
-        // console.log(testRun)
-        let testCheck = everything.includes(testRun)
+        let testCheck = randomNumberArray.includes(testRun)
         if (testCheck === false){
-        everything.push(testRun)
-        // console.log(everything)
+        randomNumberArray.push(testRun)
         i++}
     }
-    while(clues.length < everything.length){
-        for(let index = 0;index <everything.length;index++){
-            let dataI = everything[index]
+    while(clues.length < randomNumberArray.length){
+        for(let index = 0;index <randomNumberArray.length;index++){
+            let dataI = randomNumberArray[index]
             clues.push(data[dataI])    
-            // console.log(clues)
-            
         } 
     }
-         
-    questions.innerText = `${questionLabel}\n` + clues[control].question    
-    console.log(clues)
-}
+    categoryTitle.innerText = `${clues[0].category.title}`
+    questions.innerText = questionsText + clues[control].question     
     
-
+}
 function processClue(response) {
     let responseProcess = response.json()
     responseProcess.then(storeClues)
     
 }
-
-function storeCategory(data){
-    console.log(data)
-}
-
-function processCategory(response){
-    let responseProcess = response.json()
-    responseProcess.then(storeCategory)
-}
-
 function getClues(data){
     category = data[0].category.id
-    categoryTitle = data[0].category.title
-    console.log(data)
-    console.log(category)
-    console.log(categoryTitle)
+    if(category === 79){
+        questions.innerText = "Unable to retrieve category please reload page"
+    } else {
+
     let urlClues = `https://jservice.io/api/clues/?category=`+`${category}`
-    console.log(urlClues)
     let fetchClues = fetch(urlClues)
     fetchClues.then(processClue)
-    let categoryTest = "https://jservice.io/api/category/?id=" + category
-    let fetchCategory = fetch(categoryTest)
-    fetchCategory.then(processCategory)
-    
+    }
 }
-
-
 function processResponce(response){
     let responseProcess = response.json()
     responseProcess.then(getClues)
 }
-
 function getCategory(){
     const urlCategory = "https://jservice.io/api/random"
-    console.log(urlCategory)
     let fetchPromise = fetch(urlCategory)
     fetchPromise.then(processResponce)
-    
 }
+start.addEventListener("click",function(){
+    getCategory()
+    document.body.append(answerLabel)
+    document.body.append(answerInput)
+    document.body.append(submit)
+    document.body.append(point)   
+    console.log(clues)
+    document.body.removeChild(start)
+    document.body.replaceChild(categoryTitle,rules)
+})
 
-getCategory()
-let questionLabel = "Question:"
+function nextQuestion(){
+    if(control === clues.length){
+        control = 0
+        let categoryComplete = document.createElement("h2")
+        categoryComplete.innerText = "Congragulations! You have completed the category.Please reset your game."
+        document.body.replaceChild(categoryComplete,responseToAnswer)
+        document.body.replaceChild(reset,next)
+    }else if (control < clues.length){
+        control++
+    questions.innerText = questionsText + clues[control].question
+    document.body.replaceChild(answerLabel,blankSpace1)
+    document.body.replaceChild(answerInput,blankSpace2)
+    document.body.replaceChild(submit,next)
+    document.body.replaceChild(questions,responseToAnswer) 
+    }
+}
 
 function correctResponse(){
-        responseCorrect.innerText = "Congratulations, you are Correct."
-        document.body.append(responseCorrect)
+    responseToAnswer.innerText = "Congratulations, you are Correct."
+    document.body.replaceChild(blankSpace1,answerLabel)
+    document.body.replaceChild(blankSpace2,answerInput)
+    document.body.replaceChild(responseToAnswer,questions)
+    document.body.replaceChild(next,submit)
+    points++
+    point.innerText = `${points} Pts.`
 }
 
+function incorrectResponse(){
+    responseToAnswer.innerText = "I'm sorry that is incorrect. Your Points have been zeroed out. Please reset your game."
+    points = 0
+    point.innerText = `${points} Pts.`
+    document.body.replaceChild(reset,submit)
+    document.body.replaceChild(responseToAnswer,questions)
+    document.body.removeChild(answerLabel)
+    document.body.removeChild(answerInput)
+}
+function easeOfAnswer(string){
+    // Figured out the .replace to for the tags from:
+    // https://css-tricks.com/snippets/javascript/strip-html-tags-in-javascript/
+    // which lead me to finding .replaceChild()
+    removeStyleTags = string.replace(/(<([^>]+)>)/gi,"")
+    finalEaseAnswer = removeStyleTags.toLowerCase()
+    return finalEaseAnswer
+}
 
-function checkAnswer(answerValue){
-    
-    
-    const point = document.getElementById("points")
-    answerValue = document.getElementById("answer").value
-    answered.push(answerValue)
-    if(answerValue === clues[control].answer){
-        control++
-        points++
-        let pointsText = `${points} Pts.`
-        point.innerText = pointsText
-        console.log(answerValue)
-        console.log(points)
-        console.log(control)
-        questions.innerText = `${questionLabel}\n ${clues[control].question}`
+function resetGame(){
+    // Got this from https://www.codegrepper.com/code-examples/html/refresh+the+page+onclick+javascript
+    // was having trouble getting the game to reset with out going into an infinite loop.
+    location.reload()
+}
+
+function checkAnswer(){
+    finalAnswer = easeOfAnswer(answerInput.value)
+    correctAnswer = easeOfAnswer(clues[control].answer)
+    if(finalAnswer === correctAnswer){
         document.getElementById("answer").value = ""
         correctResponse()
-    } else if (answerValue !== clues[control].answer) {
-        points= 0
-        control = 0
-        console.log(points)
-        console.log(control)
-    }
-    // console.log(answered)
+        
+    }else 
+    {
+        incorrectResponse()
+    } 
 }
-console.log(answered)
+
 submit.addEventListener("click",function(){
     checkAnswer()
 })
-console.log(clues)
+
+next.addEventListener("click",function(){
+    nextQuestion()
+})
+
+reset.addEventListener("click",function(){
+    resetGame()
+})

@@ -1,1 +1,6 @@
-/* Write your CSS Here. */
+body{
+    color: white;
+    background-color: blue;
+    text-align: center;
+    text-overflow: unset;
+}
