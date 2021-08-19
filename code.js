@@ -1,7 +1,5 @@
 // variables and arrays
-const clues = []
-const answered = []
-let cluesCount 
+const clues = [] 
 let randomNumberArray = [] 
 let points = 0
 let control = 0
@@ -146,10 +144,8 @@ function checkAnswer(){
     correctAnswer = easeOfAnswer(clues[control].answer)
     if(finalAnswer === correctAnswer){
         document.getElementById("answer").value = ""
-        correctResponse()
-        
-    }else 
-    {
+        correctResponse()    
+    }else{
         incorrectResponse()
     } 
 }
